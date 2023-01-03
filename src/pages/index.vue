@@ -101,8 +101,9 @@
 
 <script setup lang="ts">
 import { execFaker } from '@/assets/faker-utils'
-import { set } from 'object-path'
+import objectPath from 'object-path'
 import { useClipboard } from '@vueuse/core'
+const { set } = objectPath
 
 const state = reactive({
   numElems: '1',
