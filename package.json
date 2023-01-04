@@ -22,6 +22,6 @@
     "mini-svg-data-uri": "^1.4.4",
     "nanoid": "^4.0.0",
     "object-path": "^0.11.8",
-    "senp-ui": "^0.0.10"
+    "senp-ui": "^0.0.11"
   }
 }

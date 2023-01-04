@@ -116,6 +116,7 @@
           language="json"
           disabled
         ></SenpCodeEditor>
+        <pre><code>{{ example }}</code></pre>
       </div>
     </template>
   </SenpLayoutBasic>

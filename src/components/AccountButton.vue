@@ -4,7 +4,7 @@
     <NuxtLink v-else-if="!isAuthed" to="/auth/login" class="text-neutral-200 hover:text-blue-400 transition"
       >Sign In</NuxtLink
     >
-    <Menu
+    <SenpMenu
       v-else
       :options="[
         { label: 'Sign Out', emits: 'signOut' },
@@ -27,7 +27,7 @@
           <img :src="avatarSvg" alt="Avatar" class="w-8 h-8 rounded-full" />
         </div>
       </template>
-    </Menu>
+    </SenpMenu>
     <SharedModal v-model:open="modals.shared"></SharedModal>
   </div>
 </template>
