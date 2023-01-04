@@ -1,33 +1,39 @@
 <template>
   <div class="grid gap-1">
-    <!-- <pre><code>{{ {jsonKey, jsonValue, jsonValueType} }}</code></pre> -->
-    <div v-if="!root" class="flex gap-0.5">
-      <SenpTextInput
-        v-if="jsonKey !== '__entries__'"
-        class="h-max"
-        :classes="{ input: { extend: 'rounded-r-none' } }"
-        :model-value="jsonKey"
-        @update:model-value="(v) => $emit('update:jsonKey', dotpath, v)"
-      ></SenpTextInput>
-      <SenpTextInput
-        v-else
-        disabled
-        class="h-max pointer-events-none"
-        :classes="{ input: { extend: '!text-gray-400 font-semibold cursor-not-allowed rounded-r-none' } }"
-        :model-value="jsonKey"
-      ></SenpTextInput>
-      <select
-        class="w-24 text-xs rounded-r-lg bg-neutral-800 p-2 font-medium text-neutral-50 border border-neutral-700"
-        @change="(e: any) => updateJsonValueType(e.target.value as any)"
-      >
-        <option :selected="jsonValueType === 'string'" value="string">string</option>
-        <option :selected="jsonValueType === 'number'" value="number">number</option>
-        <option :selected="jsonValueType === 'object'" value="object">object</option>
-        <option :selected="jsonValueType === 'null'" value="null">null</option>
-        <option :selected="jsonValueType === 'boolean'" value="boolean">boolean</option>
-        <option :selected="jsonValueType === 'array'" value="array">array</option>
-        <option :selected="jsonValueType === 'any'" value="any">any</option>
-      </select>
+    <div v-if="!root" class="grid sm:flex gap-0.5">
+      <div class="flex gap-0.5">
+        <SenpTextInput
+          v-if="jsonKey !== '__entries__'"
+          class="h-max"
+          :classes="{ input: { extend: 'rounded-r-none' } }"
+          :model-value="jsonKey"
+          @update:model-value="(v) => $emit('update:jsonKey', dotpath, v)"
+        ></SenpTextInput>
+        <SenpTextInput
+          v-else
+          disabled
+          class="h-max pointer-events-none"
+          :classes="{ input: { extend: '!text-gray-400 font-semibold cursor-not-allowed rounded-r-none' } }"
+          :model-value="jsonKey"
+        ></SenpTextInput>
+        <select
+          class="w-24 text-xs rounded-r-lg bg-neutral-800 p-2 font-medium text-neutral-50 border border-neutral-700"
+          @change="(e: any) => updateJsonValueType(e.target.value as any)"
+        >
+          <option :selected="jsonValueType === 'string'" value="string">string</option>
+          <option :selected="jsonValueType === 'number'" value="number">number</option>
+          <option :selected="jsonValueType === 'object'" value="object">object</option>
+          <option :selected="jsonValueType === 'null'" value="null">null</option>
+          <option :selected="jsonValueType === 'boolean'" value="boolean">boolean</option>
+          <option :selected="jsonValueType === 'array'" value="array">array</option>
+          <option :selected="jsonValueType === 'any'" value="any">any</option>
+        </select>
+        <SenpButton
+          @click="() => $emit('update:removeProperty', dotpath, jsonKey)"
+          class="sm:hidden w-11 justify-center !bg-transparent text-neutral-400 text-xl hover:text-orange-600 transition"
+          ><Icon name="mdi:trash-can"></Icon
+        ></SenpButton>
+      </div>
       <div
         class="ml-2 grid grid-flow-col auto-cols-max items-center gap-2 min-w-[6rem] max-w-[14rem] text-xs justify-end rounded-lg border border-blue-600 bg-blue-800/20"
         v-if="jsonValueType !== 'object' && jsonValueType !== 'array'"
@@ -57,8 +63,13 @@
           @update:model-value="(v) => $emit('update:arrLength', dotpath, v)"
         ></SenpTextInput>
       </div>
+      <SenpButton
+        @click="() => $emit('update:removeProperty', dotpath, jsonKey)"
+        class="hidden sm:flex w-11 justify-center !bg-transparent text-neutral-400 text-xl hover:text-orange-600 transition"
+        ><Icon name="mdi:trash-can"></Icon
+      ></SenpButton>
     </div>
-    <div class="pl-6 grid gap-1" v-if="jsonValueType === 'array'">
+    <div class="pl-4 sm:pl-6 grid gap-1" v-if="jsonValueType === 'array'">
       <JsonEditor
         :dotpath="[...dotpath, 'entries']"
         :json-key="arrEntries.key"
@@ -67,13 +78,14 @@
         :arr-length="arrEntries.length"
         :arr-entries="arrEntries.entries"
         @update:json-key="(dotpath, val) => $emit('update:jsonKey', dotpath, val)"
+        @update:remove-property="(dotpath, val) => $emit('update:removeProperty', dotpath, val)"
         @update:json-value="(dotpath, val) => $emit('update:jsonValue', dotpath, val)"
         @update:json-type="(dotpath, val) => $emit('update:jsonType', dotpath, val)"
         @update:arr-entries="(dotpath, val) => $emit('update:arrEntries', dotpath, val)"
         @update:arr-length="(dotpath, val) => $emit('update:arrLength', dotpath, val)"
       ></JsonEditor>
     </div>
-    <div class="grid gap-1" :class="{ 'pl-6': !root }" v-if="jsonValueType === 'object'">
+    <div class="grid gap-1" :class="{ 'pl-4 sm:pl-6': !root }" v-if="jsonValueType === 'object'">
       <JsonEditor
         :dotpath="root ? [...dotpath, i + ''] : [...dotpath, 'value', i + '']"
         v-for="(entry, i) in jsonValue"
@@ -83,6 +95,7 @@
         :arr-length="jsonValue[i]?.length"
         :arr-entries="jsonValue[i]?.entries"
         @update:json-key="(dotpath, val) => $emit('update:jsonKey', dotpath, val)"
+        @update:remove-property="(dotpath, val) => $emit('update:removeProperty', dotpath, val)"
         @update:json-value="(dotpath, val) => $emit('update:jsonValue', dotpath, val)"
         @update:json-type="(dotpath, val) => $emit('update:jsonType', dotpath, val)"
         @update:arr-entries="(dotpath, val) => $emit('update:arrEntries', dotpath, val)"
@@ -103,8 +116,6 @@
 
 <script setup lang="ts">
 import { execFaker } from '../assets/faker-utils'
-
-type JSONValue = string | number | boolean | null | { [x: string]: JSONValue } | Array<JSONValue>
 
 const props = withDefaults(
   defineProps<{
@@ -127,6 +138,7 @@ const emit = defineEmits<{
   (event: 'update:jsonType', dotpath: string[], value: any): void
   (event: 'update:arrLength', dotpath: string[], value: string): void
   (event: 'update:arrEntries', dotpath: string[], value: number): void
+  (event: 'update:removeProperty', dotpath: string[], value: string): void
 }>()
 
 const modals = reactive({
@@ -134,84 +146,9 @@ const modals = reactive({
   asdf: '',
 })
 
-const getJsonValueType = (value: any): 'string' | 'number' | 'object' | 'null' | 'boolean' | 'array' | 'any' => {
-  if (typeof value === 'object' && !Array.isArray(value)) {
-    return 'object'
-  }
-  if (typeof value === 'object' && Array.isArray(value)) {
-    return 'array'
-  }
-  if (value == null) {
-    return 'null'
-  }
-  if (['string', 'number', 'boolean'].includes(typeof value)) {
-    return typeof value as any
-  }
-  return 'string'
-}
-
-const defaultValue = (t: string, key: string) =>
-  ({
-    any: { type: 'any', key, value: '' },
-    string: { type: 'string', key, value: '' },
-    number: { type: 'number', key, value: 0 },
-    object: { type: 'object', key, value: [{ key: 'prop', type: 'string', value: '' }] },
-    null: { type: 'null', key, value: null },
-    boolean: { type: 'boolean', key, value: false },
-    array: {
-      type: 'array',
-      key,
-      value: [''],
-      entries: { type: 'string', key: '__entries__', value: '' },
-      length: '1',
-    },
-  }[t])
-
-const toEditable = (obj: any): any[] => {
-  const tObj = getJsonValueType(obj)
-  if (tObj === 'object') {
-    return Object.entries(obj).map(([key, val]: [string, any]) => {
-      const tValue = getJsonValueType(val)
-      const res = {
-        key,
-        value: tValue === 'object' ? toEditable(val) : val,
-        type: tValue,
-      }
-      if (tValue === 'array') {
-        const entryType =
-          val.reduce((prev: any[], a: any) => {
-            const currType = getJsonValueType(a)
-            if (prev.includes(currType)) {
-              return prev
-            }
-            return [...prev, currType]
-          }, []).length === 1
-            ? getJsonValueType(val[0])
-            : 'any'
-        ;(res as any).length = val.length + ''
-        ;(res as any).entries = defaultValue(entryType, '__entries__')
-        if (entryType === 'object') {
-          res.value = val.map((a: any) => toEditable(a))
-        }
-      }
-      return res
-    })
-  }
-  return obj
-}
+const { defaultValue } = useProcessJson()
 
 const updateJsonValueType = (t: 'string' | 'number' | 'object' | 'null' | 'boolean' | 'array') => {
   emit('update:jsonType', props.dotpath, defaultValue(t, props.jsonKey))
 }
-
-const toEditableKeyValues = (obj: any): any[][] => {
-  if (typeof obj === 'object' && !Array.isArray(obj)) {
-    return Object.entries(obj)
-  }
-  return obj
-}
-
-// const addValue = () => {
-//   state.json.push(['_prop', ''])
-// }
 </script>
