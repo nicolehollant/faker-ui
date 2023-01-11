@@ -38,6 +38,10 @@ export const execFaker = (
 ) => {
   try {
     const [_module, method] = dotpath.split('.')
+    if (_module === 'custom') {
+      const { $state } = useNuxtApp()
+      return $state.execCustomValue($state.customValues.value.findIndex((a) => a.name === method))
+    }
     if (_module === 'float' || _module === 'int') {
       return (numbers[_module] as any)[method as any]()
     }

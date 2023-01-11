@@ -30,8 +30,13 @@
           </div>
           <p>FakerUI</p>
         </div>
-
-        <AccountButton></AccountButton>
+        <div class="flex gap-4 items-center shrink-0">
+          <SenpButton class="text-xs shrink-0" @click="() => (modals.customValues = true)">
+            <p>Custom Values</p>
+            <Icon class="text-base" name="mdi:shimmer"></Icon>
+          </SenpButton>
+          <AccountButton></AccountButton>
+        </div>
       </div>
     </template>
 
@@ -120,7 +125,7 @@
     </template>
   </SenpLayoutBasic>
   <SenpModal v-model:open="modals.share">
-    <div class="grid gap-4">
+    <div class="grid gap-4 py-4">
       <h1 class="text-2xl">Sharing:</h1>
     </div>
     <div class="grid gap-2">
@@ -138,7 +143,7 @@
     </div>
   </SenpModal>
   <SenpModal v-model:open="modals.import">
-    <div class="grid gap-4">
+    <div class="grid gap-4 py-4">
       <h1 class="text-2xl">Import Model:</h1>
     </div>
     <div class="grid gap-2">
@@ -152,6 +157,37 @@
       </SenpButton>
     </div>
   </SenpModal>
+  <SenpDrawer
+    v-model:open="modals.customValues"
+    title="Custom Values"
+    :classes="{
+      maxSize: { base: 'w-full max-h-full max-w-[90vw] md:max-w-6xl h-full' },
+    }"
+  >
+    <div class="h-full overflow-auto flex flex-col gap-4">
+      <SenpButton @click="() => $state.customValues.value.push({ name: '', values: [] })"
+        >+ Add Custom Value Group</SenpButton
+      >
+      <section class="flex flex-col gap-4">
+        <div
+          v-for="(customValue, index) in $state.customValues.value"
+          class="p-2 bg-neutral-900/50 rounded-xl flex flex-col gap-2"
+        >
+          <SenpTextInput v-model="$state.customValues.value[index].name" label="Name"></SenpTextInput>
+          <p class="text-sm">Values</p>
+          <div v-for="(val, i) in customValue.values" class="flex items-center gap-2">
+            <SenpTextInput class="w-full" v-model="$state.customValues.value[index].values[i]"></SenpTextInput>
+            <SenpButton
+              @click="() => $state.customValues.value[index].values.splice(i, 1)"
+              class="hidden sm:flex w-11 justify-center !bg-transparent text-neutral-400 text-xl hover:text-orange-600 transition"
+              ><Icon name="mdi:trash-can"></Icon
+            ></SenpButton>
+          </div>
+          <SenpButton @click="() => $state.customValues.value[index].values.push('')">+ Add Value</SenpButton>
+        </div>
+      </section>
+    </div>
+  </SenpDrawer>
 </template>
 
 <script setup lang="ts">
@@ -169,7 +205,7 @@ definePageMeta({
 
 const { set, get } = objectPath
 
-const { $auth } = useNuxtApp()
+const { $auth, $state } = useNuxtApp()
 const queryClient = useQueryClient()
 
 const state = reactive({
@@ -183,6 +219,7 @@ const state = reactive({
 const { toEditable } = useProcessJson()
 
 const modals = reactive({
+  customValues: false,
   share: false,
   import: false,
 })
@@ -271,6 +308,7 @@ const share = async () => {
       model: state.rootValue,
       userID: $auth.account.value?.id ?? '',
       name: state.name,
+      customValues: $state.customValues.value,
     })
     console.log({ result })
     shareClipboard.copy(window.location.origin + `/?code=${code}`)
@@ -301,6 +339,7 @@ watch(
       if (route.query?.code) {
         const [matching] = await api.match({ code: route.query.code })
         state.rootValue = matching.model
+        $state.customValues.value = matching.customValues
       }
     } catch (error) {
       console.log(error)
@@ -313,6 +352,7 @@ onMounted(async () => {
     if (route.query?.code) {
       const [matching] = await api.match({ code: route.query.code })
       state.rootValue = matching.model
+      $state.customValues.value = matching.customValues
     }
   } catch (error) {
     console.log(error)

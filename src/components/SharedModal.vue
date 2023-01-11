@@ -1,6 +1,6 @@
 <template>
   <SenpModal :open="open" @update:open="(v) => $emit('update:open', v)">
-    <div class="grid gap-4">
+    <div class="grid gap-4 py-4">
       <h1 class="text-2xl">Shared Models</h1>
     </div>
     <div class="max-h-[60vh] overflow-auto text-xs grid divide-y divide-neutral-700/40" v-if="query.data.value?.length">

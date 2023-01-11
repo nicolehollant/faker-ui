@@ -1,5 +1,5 @@
 <template>
-  <div class="text-sm shrink-0">
+  <div class="text-sm shrink-0 flex items-center">
     <div class="w-8 h-8 bg-neutral-600 rounded-full animate-pulse" v-if="loading"></div>
     <NuxtLink v-else-if="!isAuthed" to="/auth/login" class="text-neutral-200 hover:text-blue-400 transition"
       >Sign In</NuxtLink
@@ -23,7 +23,7 @@
       "
     >
       <template #trigger>
-        <div class="border-2 border-transparent ring-2 ring-neutral-500 rounded-full">
+        <div class="border-2 border-transparent ring-2 ring-neutral-500 rounded-full flex items-center">
           <img :src="avatarSvg" alt="Avatar" class="w-8 h-8 rounded-full" />
         </div>
       </template>

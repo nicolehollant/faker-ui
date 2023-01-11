@@ -7,6 +7,7 @@ const validator = z.object({
   userID: z.string(),
   model: z.any(),
   name: z.string(),
+  customValues: z.any(),
 })
 
 type GetAllResponse = (typeof validator._input & { id: string })[]
